@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
-
-const API_BASE = (import.meta.env.VITE_API_URL) || 'http://localhost:3000/api'
+import React, { useState, useEffect } from 'react'
+import { postSuperAdminLogin, postVerifyOtp, postResendOtp, clearStoredAuth, getStoredUser } from '../api'
 
 export default function SuperAdminLogin() {
   const [email, setEmail] = useState('')
@@ -9,38 +8,28 @@ export default function SuperAdminLogin() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [user, setUser] = useState<any | null>(null)
+  const [user, setUser] = useState<any | null>(getStoredUser())
+  const [resendCooldown, setResendCooldown] = useState<number>(0)
 
-  // initialise from stored tokens/user
-  React.useEffect(() => {
-    try {
-      const stored = localStorage.getItem('super_admin_user')
-      if (stored) {
-        setUser(JSON.parse(stored))
-      }
-    } catch (e) {
-      // ignore
+  useEffect(() => {
+    let t: number | undefined
+    if (resendCooldown > 0) {
+      t = window.setTimeout(() => setResendCooldown(resendCooldown - 1), 1000)
     }
-  }, [])
+    return () => { if (t) clearTimeout(t) }
+  }, [resendCooldown])
 
   async function requestOtp(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     setMessage(null)
+    if (!email) return setError('Email is required')
     setLoading(true)
     try {
-      const res = await fetch(`${API_BASE}/super-admin/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-
-      const data = await res.json()
-      if (!res.ok) throw new Error(data?.body || data?.message || 'Request failed')
-
-      // API returns userId in body when OTP is sent
+      const data = await postSuperAdminLogin(email)
       setUserId(data?.body?.userId || data?.body?.user_id || null)
       setMessage('OTP sent to email. Check your inbox.')
+      setResendCooldown(30)
     } catch (err: any) {
       setError(err.message || 'Failed to request OTP')
     } finally {
@@ -53,30 +42,14 @@ export default function SuperAdminLogin() {
     setError(null)
     setMessage(null)
     if (!userId) return setError('Missing user ID. Request OTP again.')
+    if (!/^[0-9]{4,8}$/.test(otp)) return setError('OTP must be numeric (4-8 digits)')
     setLoading(true)
     try {
-      const res = await fetch(`${API_BASE}/auth/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, otp }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data?.body || data?.message || 'Verification failed')
-
+      const data = await postVerifyOtp(userId, otp)
       setMessage('Login successful.')
-      // store tokens and user
       const body = data?.body || {}
-      const tokens = { access_token: body.access_token, refresh_token: body.refresh_token }
       const loggedUser = body.user || null
-      try {
-        localStorage.setItem('super_admin_tokens', JSON.stringify(tokens))
-        if (loggedUser) localStorage.setItem('super_admin_user', JSON.stringify(loggedUser))
-      } catch (e) {
-        // ignore
-      }
       setUser(loggedUser)
-      // optionally show tokens in console for developer
-      console.log('auth result', body)
     } catch (err: any) {
       setError(err.message || 'Failed to verify OTP')
     } finally {
@@ -88,16 +61,12 @@ export default function SuperAdminLogin() {
     setError(null)
     setMessage(null)
     if (!userId) return setError('Missing user ID. Request OTP again.')
+    if (resendCooldown > 0) return setError(`Please wait ${resendCooldown}s before resending`)
     setLoading(true)
     try {
-      const res = await fetch(`${API_BASE}/auth/resend-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data?.body || data?.message || 'Resend failed')
+      await postResendOtp(userId)
       setMessage('OTP resent. Check your email.')
+      setResendCooldown(30)
     } catch (err: any) {
       setError(err.message || 'Failed to resend OTP')
     } finally {
@@ -106,12 +75,7 @@ export default function SuperAdminLogin() {
   }
 
   function logout() {
-    try {
-      localStorage.removeItem('super_admin_tokens')
-      localStorage.removeItem('super_admin_user')
-    } catch (e) {
-      // ignore
-    }
+    clearStoredAuth()
     setUser(null)
     setUserId(null)
     setEmail('')
@@ -141,11 +105,11 @@ export default function SuperAdminLogin() {
         <form onSubmit={verifyOtp}>
           <div className="form-group">
             <label>OTP</label>
-            <input value={otp} onChange={e => setOtp(e.target.value)} type="text" required />
+            <input value={otp} onChange={e => setOtp(e.target.value)} type="text" inputMode="numeric" pattern="[0-9]*" required />
           </div>
           <div className="row">
             <button type="submit" disabled={loading}>{loading ? 'Verifying...' : 'Verify OTP'}</button>
-            <button type="button" className="inline-link" onClick={resendOtp} disabled={loading}>Resend OTP</button>
+            <button type="button" className="inline-link" onClick={resendOtp} disabled={loading || resendCooldown>0}>{resendCooldown>0?`Resend (${resendCooldown}s)`:'Resend OTP'}</button>
           </div>
           <p className="muted" style={{ marginTop: 10 }}>OTP will expire quickly — check spam if not visible.</p>
         </form>
