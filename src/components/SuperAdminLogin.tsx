@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import { postSuperAdminLogin, postVerifyOtp, postResendOtp, clearStoredAuth, getStoredUser } from '../api'
+import { useNavigate, useLocation, Navigate } from 'react-router-dom'
+import { postSuperAdminLogin, postVerifyOtp, postResendOtp } from '../api'
+import { useAuth } from '../context/AuthContext'
 
 export default function SuperAdminLogin() {
+  const { user, setUser, isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const [email, setEmail] = useState('')
   const [userId, setUserId] = useState<string | null>(null)
   const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [user, setUser] = useState<any | null>(getStoredUser())
   const [resendCooldown, setResendCooldown] = useState<number>(0)
 
   useEffect(() => {
@@ -19,6 +24,11 @@ export default function SuperAdminLogin() {
     return () => { if (t) clearTimeout(t) }
   }, [resendCooldown])
 
+  if (isAuthenticated && user) {
+    const from = (location.state as { from?: string } | null)?.from || '/'
+    return <Navigate to={from} replace />
+  }
+
   async function requestOtp(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -26,8 +36,8 @@ export default function SuperAdminLogin() {
     if (!email) return setError('Email is required')
     setLoading(true)
     try {
-      const data = await postSuperAdminLogin(email)
-      setUserId(data?.body?.userId || data?.body?.user_id || null)
+      const res = await postSuperAdminLogin(email)
+      setUserId(res.data?.userId || null)
       setMessage('OTP sent to email. Check your inbox.')
       setResendCooldown(30)
     } catch (err: any) {
@@ -45,11 +55,14 @@ export default function SuperAdminLogin() {
     if (!/^[0-9]{4,8}$/.test(otp)) return setError('OTP must be numeric (4-8 digits)')
     setLoading(true)
     try {
-      const data = await postVerifyOtp(userId, otp)
-      setMessage('Login successful.')
-      const body = data?.body || {}
-      const loggedUser = body.user || null
-      setUser(loggedUser)
+      const res = await postVerifyOtp(userId, otp)
+      const loggedUser = res.data?.user || null
+      if (loggedUser) {
+        setUser(loggedUser)
+        navigate('/', { replace: true })
+      } else {
+        setError('Login succeeded but no user data was returned.')
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to verify OTP')
     } finally {
@@ -74,21 +87,13 @@ export default function SuperAdminLogin() {
     }
   }
 
-  function logout() {
-    clearStoredAuth()
-    setUser(null)
-    setUserId(null)
-    setEmail('')
-    setOtp('')
-    setMessage('Logged out successfully.')
-  }
-
   return (
-    <div>
+    <div className="login-root">
+      <h1>Super Admin Login</h1>
       {message && <div className="message">{message}</div>}
-      {error && <div style={{ color: 'crimson', marginBottom: 12 }}>{error}</div>}
+      {error && <div className="error">{error}</div>}
 
-      {!user && !userId && (
+      {!userId && (
         <form onSubmit={requestOtp}>
           <div className="form-group">
             <label>Email</label>
@@ -101,7 +106,7 @@ export default function SuperAdminLogin() {
         </form>
       )}
 
-      {userId && !user && (
+      {userId && (
         <form onSubmit={verifyOtp}>
           <div className="form-group">
             <label>OTP</label>
@@ -109,19 +114,12 @@ export default function SuperAdminLogin() {
           </div>
           <div className="row">
             <button type="submit" disabled={loading}>{loading ? 'Verifying...' : 'Verify OTP'}</button>
-            <button type="button" className="inline-link" onClick={resendOtp} disabled={loading || resendCooldown>0}>{resendCooldown>0?`Resend (${resendCooldown}s)`:'Resend OTP'}</button>
+            <button type="button" className="inline-link" onClick={resendOtp} disabled={loading || resendCooldown > 0}>
+              {resendCooldown > 0 ? `Resend (${resendCooldown}s)` : 'Resend OTP'}
+            </button>
           </div>
           <p className="muted" style={{ marginTop: 10 }}>OTP will expire quickly — check spam if not visible.</p>
         </form>
-      )}
-
-      {user && (
-        <div>
-          <div className="message">Signed in as <strong>{user.email}</strong></div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={logout}>Logout</button>
-          </div>
-        </div>
       )}
     </div>
   )
