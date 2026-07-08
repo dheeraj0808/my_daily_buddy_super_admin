@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { clearStoredAuth, getStoredTokens, getStoredUser, setSessionExpiredHandler } from '../api'
 import type { AuthUser } from '../types'
 
@@ -41,11 +41,11 @@ export function useAuth(): AuthContextValue {
   return ctx
 }
 
-export function RequireAuth({ children }: { children: React.ReactNode }) {
+export function RequireAuth() {
   const { isAuthenticated } = useAuth()
   const location = useLocation()
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />
   }
-  return <>{children}</>
+  return <Outlet />
 }
