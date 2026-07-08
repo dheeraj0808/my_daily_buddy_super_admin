@@ -1,14 +1,35 @@
 # Super Admin Frontend
 
-Minimal Vite + React app for Super Admin login (OTP + resend).
+Vite + React admin panel for My Daily Buddy super admins.
 
-Run:
+## Features
+
+- OTP login (`POST /api/super-admin/login` + `/api/auth/verify-otp`)
+- Dashboard with summary stats
+- Plans CRUD (create, edit, soft-delete)
+- Subscription assignment and listing
+- Users list (read-only, with filters)
+- Process pending notifications
+
+## Setup
 
 ```bash
 cd super-admin
 npm install
+cp .env.example .env   # adjust VITE_API_URL if your backend port differs
 npm run dev
 ```
 
-By default the UI posts to `http://localhost:3000/api`. To change, set `VITE_API_URL` in an `.env` file.
-# my_daily_buddy_super_admin
+Open `http://localhost:5173`. Unauthenticated users are redirected to `/login`.
+
+## Environment
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `VITE_API_URL` | `http://localhost:5001/api` | Backend API base URL (includes `/api` prefix) |
+
+## Scripts
+
+- `npm run dev` — start dev server
+- `npm run build` — production build
+- `npm run preview` — preview production build

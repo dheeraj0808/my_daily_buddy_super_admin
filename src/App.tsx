@@ -15,12 +15,14 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<SuperAdminLogin />} />
-          <Route element={<RequireAuth><Layout /></RequireAuth>}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/plans" element={<PlansPage />} />
-            <Route path="/subscriptions" element={<SubscriptionsPage />} />
-            <Route path="/users" element={<UsersPage />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
+          <Route element={<RequireAuth />}>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/plans" element={<PlansPage />} />
+              <Route path="/subscriptions" element={<SubscriptionsPage />} />
+              <Route path="/users" element={<UsersPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+            </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

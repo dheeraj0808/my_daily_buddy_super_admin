@@ -1,5 +1,5 @@
 import React from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const NAV_ITEMS = [
@@ -12,6 +12,12 @@ const NAV_ITEMS = [
 
 export default function Layout() {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  function handleLogout() {
+    logout()
+    navigate('/login', { replace: true })
+  }
 
   return (
     <div className="admin-layout">
@@ -28,7 +34,7 @@ export default function Layout() {
       <div className="admin-main">
         <header className="admin-header">
           <span className="muted">{user?.email}</span>
-          <button type="button" className="btn-secondary btn-small" onClick={logout}>Logout</button>
+          <button type="button" className="btn-secondary btn-small" onClick={handleLogout}>Logout</button>
         </header>
         <main className="admin-content">
           <Outlet />
