@@ -39,6 +39,8 @@ export default function PlansPage() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState('')
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null)
@@ -55,6 +57,8 @@ export default function PlansPage() {
         limit: 10,
         search: search || undefined,
         is_active: activeFilter === '' ? undefined : activeFilter,
+        minPrice: minPrice !== '' ? Number(minPrice) : undefined,
+        maxPrice: maxPrice !== '' ? Number(maxPrice) : undefined,
       })
       setPlans(res.data || [])
       setMeta(res.meta || null)
@@ -63,7 +67,7 @@ export default function PlansPage() {
     } finally {
       setLoading(false)
     }
-  }, [page, search, activeFilter])
+  }, [page, search, activeFilter, minPrice, maxPrice])
 
   useEffect(() => { fetchPlans() }, [fetchPlans])
 
@@ -192,6 +196,14 @@ export default function PlansPage() {
             <option value="true">Active</option>
             <option value="false">Inactive</option>
           </select>
+        </div>
+        <div className="form-group">
+          <label>Min Price</label>
+          <input type="number" min={0} step="0.01" value={minPrice} onChange={e => { setMinPrice(e.target.value); setPage(1) }} />
+        </div>
+        <div className="form-group">
+          <label>Max Price</label>
+          <input type="number" min={0} step="0.01" value={maxPrice} onChange={e => { setMaxPrice(e.target.value); setPage(1) }} />
         </div>
       </div>
 
