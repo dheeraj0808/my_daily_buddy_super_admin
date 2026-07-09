@@ -15,11 +15,13 @@ export default function SubscriptionsPage() {
 
   const [page, setPage] = useState(1)
   const [planFilter, setPlanFilter] = useState('')
+  const [userFilter, setUserFilter] = useState('')
   const [activeFilter, setActiveFilter] = useState('')
   const [startDateFrom, setStartDateFrom] = useState('')
   const [startDateTo, setStartDateTo] = useState('')
 
   const [plans, setPlans] = useState<Plan[]>([])
+  const [filterUsers, setFilterUsers] = useState<AdminUser[]>([])
 
   const [modalOpen, setModalOpen] = useState(false)
   const [assignPlanId, setAssignPlanId] = useState('')
@@ -38,6 +40,7 @@ export default function SubscriptionsPage() {
         page,
         limit: 10,
         planId: planFilter || undefined,
+        userId: userFilter || undefined,
         is_active: activeFilter === '' ? undefined : activeFilter,
         startDateFrom: startDateFrom || undefined,
         startDateTo: startDateTo || undefined,
@@ -49,7 +52,7 @@ export default function SubscriptionsPage() {
     } finally {
       setLoading(false)
     }
-  }, [page, planFilter, activeFilter, startDateFrom, startDateTo])
+  }, [page, planFilter, userFilter, activeFilter, startDateFrom, startDateTo])
 
   useEffect(() => { fetchSubscriptions() }, [fetchSubscriptions])
 
@@ -57,6 +60,9 @@ export default function SubscriptionsPage() {
     listPlans({ limit: 100, is_active: 'true' })
       .then(res => setPlans(res.data || []))
       .catch(() => { /* plan filter simply stays empty */ })
+    listUsers({ limit: 100, role_id: 2, isDeleted: 'false' })
+      .then(res => setFilterUsers(res.data || []))
+      .catch(() => { /* user filter simply stays empty */ })
   }, [])
 
   useEffect(() => {
@@ -132,6 +138,13 @@ export default function SubscriptionsPage() {
           <select value={planFilter} onChange={e => { setPlanFilter(e.target.value); setPage(1) }}>
             <option value="">All plans</option>
             {plans.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>User</label>
+          <select value={userFilter} onChange={e => { setUserFilter(e.target.value); setPage(1) }}>
+            <option value="">All users</option>
+            {filterUsers.map(u => <option key={u.id} value={u.id}>{u.email}</option>)}
           </select>
         </div>
         <div className="form-group">
