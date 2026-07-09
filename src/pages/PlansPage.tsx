@@ -156,6 +156,7 @@ export default function PlansPage() {
       <PageHeader
         title="Subscription Plans"
         description="Create and manage pricing plans for your users."
+        badge="Billing"
         action={<Button onClick={openCreate}><Plus className="h-4 w-4" />Create Plan</Button>}
       />
       {message && <Alert variant="success" className="mb-4" onDismiss={() => setMessage(null)}>{message}</Alert>}

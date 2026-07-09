@@ -124,6 +124,7 @@ export default function SubscriptionsPage() {
       <PageHeader
         title="Subscriptions"
         description="View and assign subscription plans to users."
+        badge="Revenue"
         action={<Button onClick={() => { setAssignPlanId(''); setAssignUserId(''); setUserSearch(''); setFormError(null); setModalOpen(true) }}><UserPlus className="h-4 w-4" />Assign Plan</Button>}
       />
       {message && <Alert variant="success" className="mb-4" onDismiss={() => setMessage(null)}>{message}</Alert>}

@@ -108,7 +108,7 @@ export default function UsersPage() {
         </FilterField>
       </FilterBar>
 
-      <DataTable columns={columns} rows={users} rowKey={u => u.id} loading={loading} emptyMessage="No users found" />
+      <DataTable columns={columns} rows={users} rowKey={u => u.id} loading={loading} emptyMessage="No users found" title="User directory" total={meta?.total} />
       <Pagination meta={meta} onPageChange={setPage} />
     </PageShell>
   )

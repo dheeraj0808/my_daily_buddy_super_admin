@@ -16,6 +16,8 @@ interface DataTableProps<T> {
   loading?: boolean
   emptyMessage?: string
   emptyDescription?: string
+  title?: string
+  total?: number
 }
 
 export default function DataTable<T>({
@@ -25,13 +27,25 @@ export default function DataTable<T>({
   loading,
   emptyMessage = 'No records found',
   emptyDescription,
+  title,
+  total,
 }: DataTableProps<T>) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-card">
+      {(title || total != null) && (
+        <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50/80 to-white px-5 py-3.5">
+          <p className="text-sm font-semibold text-slate-800">{title ?? 'Results'}</p>
+          {total != null && !loading && (
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
+              {total.toLocaleString()} {total === 1 ? 'record' : 'records'}
+            </span>
+          )}
+        </div>
+      )}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] border-collapse">
-          <thead>
-            <tr className="border-b border-slate-100 bg-slate-50/80">
+          <thead className="sticky top-0 z-10">
+            <tr className="border-b border-slate-100 bg-slate-50/95 backdrop-blur-sm">
               {columns.map(col => (
                 <th
                   key={col.key}
@@ -58,8 +72,8 @@ export default function DataTable<T>({
               <tr
                 key={rowKey(row)}
                 className={cn(
-                  'transition-colors duration-150 hover:bg-brand-50/30',
-                  i % 2 === 0 ? 'bg-white' : 'bg-slate-50/40',
+                  'group transition-all duration-150 hover:bg-brand-50/40',
+                  i % 2 === 0 ? 'bg-white' : 'bg-slate-50/30',
                 )}
               >
                 {columns.map(col => (
