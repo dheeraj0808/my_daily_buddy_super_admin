@@ -1,5 +1,6 @@
 import React from 'react'
 import EmptyState, { TableSkeleton } from './EmptyState'
+import { cn } from '../../lib/utils'
 
 export interface Column<T> {
   key: string
@@ -26,15 +27,18 @@ export default function DataTable<T>({
   emptyDescription,
 }: DataTableProps<T>) {
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-card">
+    <div className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-card">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] border-collapse text-sm">
+        <table className="w-full min-w-[720px] border-collapse">
           <thead>
-            <tr className="border-b border-slate-200 bg-slate-50/80">
+            <tr className="border-b border-slate-100 bg-slate-50/80">
               {columns.map(col => (
                 <th
                   key={col.key}
-                  className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 ${col.className || ''}`}
+                  className={cn(
+                    'px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider text-slate-500',
+                    col.className,
+                  )}
                 >
                   {col.header}
                 </th>
@@ -50,10 +54,16 @@ export default function DataTable<T>({
                 </td>
               </tr>
             )}
-            {!loading && rows.map(row => (
-              <tr key={rowKey(row)} className="transition hover:bg-slate-50/60">
+            {!loading && rows.map((row, i) => (
+              <tr
+                key={rowKey(row)}
+                className={cn(
+                  'transition-colors duration-150 hover:bg-brand-50/30',
+                  i % 2 === 0 ? 'bg-white' : 'bg-slate-50/40',
+                )}
+              >
                 {columns.map(col => (
-                  <td key={col.key} className={`px-4 py-3.5 text-slate-700 ${col.className || ''}`}>
+                  <td key={col.key} className={cn('px-5 py-4 text-sm text-slate-700', col.className)}>
                     {col.render(row)}
                   </td>
                 ))}

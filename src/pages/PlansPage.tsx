@@ -6,7 +6,7 @@ import DataTable, { Column } from '../components/ui/DataTable'
 import Pagination from '../components/ui/Pagination'
 import Modal from '../components/ui/Modal'
 import StatusBadge from '../components/ui/StatusBadge'
-import PageHeader from '../components/ui/PageHeader'
+import PageHeader, { PageShell } from '../components/ui/PageHeader'
 import Button from '../components/ui/Button'
 import Alert from '../components/ui/Alert'
 import FilterBar, { FilterField } from '../components/ui/FilterBar'
@@ -152,7 +152,7 @@ export default function PlansPage() {
   ]
 
   return (
-    <div>
+    <PageShell>
       <PageHeader
         title="Subscription Plans"
         description="Create and manage pricing plans for your users."
@@ -220,6 +220,6 @@ export default function PlansPage() {
           </div>
         </form>
       </Modal>
-    </div>
+    </PageShell>
   )
 }

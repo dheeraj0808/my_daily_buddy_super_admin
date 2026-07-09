@@ -6,7 +6,7 @@ import DataTable, { Column } from '../components/ui/DataTable'
 import Pagination from '../components/ui/Pagination'
 import Modal from '../components/ui/Modal'
 import StatusBadge from '../components/ui/StatusBadge'
-import PageHeader from '../components/ui/PageHeader'
+import PageHeader, { PageShell } from '../components/ui/PageHeader'
 import Button from '../components/ui/Button'
 import Alert from '../components/ui/Alert'
 import FilterBar, { FilterField } from '../components/ui/FilterBar'
@@ -120,7 +120,7 @@ export default function SubscriptionsPage() {
   ]
 
   return (
-    <div>
+    <PageShell>
       <PageHeader
         title="Subscriptions"
         description="View and assign subscription plans to users."
@@ -187,6 +187,6 @@ export default function SubscriptionsPage() {
           </div>
         </form>
       </Modal>
-    </div>
+    </PageShell>
   )
 }

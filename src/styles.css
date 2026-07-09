@@ -4,7 +4,7 @@
 
 @layer base {
   html {
-    @apply antialiased;
+    @apply antialiased scroll-smooth;
   }
   body {
     @apply bg-slate-50 text-slate-900;
@@ -13,12 +13,25 @@
 
 @layer components {
   .input-field {
-    @apply w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20;
+    @apply w-full rounded-xl border border-slate-200/80 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition-all placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10;
   }
   .select-field {
-    @apply input-field cursor-pointer;
+    @apply input-field cursor-pointer appearance-none bg-[length:16px] bg-[right_12px_center] bg-no-repeat pr-10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   }
   .label-field {
-    @apply mb-1.5 block text-sm font-medium text-slate-700;
+    @apply mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500;
+  }
+  .glass-card {
+    @apply rounded-2xl border border-white/60 bg-white/80 shadow-card backdrop-blur-xl;
+  }
+  .page-mesh {
+    @apply bg-mesh;
+  }
+  .stat-shimmer {
+    @apply animate-pulse rounded-lg bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 bg-[length:200%_100%] animate-shimmer;
+  }
+  .otp-box {
+    @apply h-14 w-11 rounded-xl border-2 border-slate-200 bg-white text-center text-xl font-bold text-slate-900 shadow-sm transition-all focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/15 sm:h-16 sm:w-12;
   }
 }

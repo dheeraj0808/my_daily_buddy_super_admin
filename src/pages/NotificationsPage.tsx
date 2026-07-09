@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Bell, Send, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
 import { processNotifications } from '../api'
 import type { ProcessNotificationsResult } from '../types'
-import PageHeader from '../components/ui/PageHeader'
+import PageHeader, { PageShell } from '../components/ui/PageHeader'
 import { Card } from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Alert from '../components/ui/Alert'
@@ -33,7 +33,7 @@ export default function NotificationsPage() {
   ] : []
 
   return (
-    <div>
+    <PageShell>
       <PageHeader
         title="Notifications"
         description="Manually trigger delivery of pending scheduled push notifications."
@@ -74,6 +74,6 @@ export default function NotificationsPage() {
           </Card>
         )}
       </div>
-    </div>
+    </PageShell>
   )
 }

@@ -4,7 +4,7 @@ import type { AdminUser, PaginationMeta } from '../types'
 import DataTable, { Column } from '../components/ui/DataTable'
 import Pagination from '../components/ui/Pagination'
 import StatusBadge, { RoleBadge } from '../components/ui/StatusBadge'
-import PageHeader from '../components/ui/PageHeader'
+import PageHeader, { PageShell } from '../components/ui/PageHeader'
 import Alert from '../components/ui/Alert'
 import FilterBar, { FilterField } from '../components/ui/FilterBar'
 import { getInitials } from '../lib/utils'
@@ -70,8 +70,8 @@ export default function UsersPage() {
   ]
 
   return (
-    <div>
-      <PageHeader title="Users" description="Browse and filter registered platform users." />
+    <PageShell>
+      <PageHeader title="Users" description="Browse and filter registered platform users." badge="Directory" />
       {error && <Alert variant="error" className="mb-4" onDismiss={() => setError(null)}>{error}</Alert>}
 
       <FilterBar>
@@ -110,6 +110,6 @@ export default function UsersPage() {
 
       <DataTable columns={columns} rows={users} rowKey={u => u.id} loading={loading} emptyMessage="No users found" />
       <Pagination meta={meta} onPageChange={setPage} />
-    </div>
+    </PageShell>
   )
 }
